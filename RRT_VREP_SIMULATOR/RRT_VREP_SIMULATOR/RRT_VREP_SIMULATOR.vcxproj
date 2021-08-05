@@ -15,8 +15,7 @@
     <Keyword>QtVS_v304</Keyword>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.19041.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.19041.0</WindowsTargetPlatformVersion>
-    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')"
-      >$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -41,11 +40,8 @@
     <QtModules>core;gui;widgets</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
-  <Target Name="QtMsBuildNotFound"
-    BeforeTargets="CustomBuild;ClCompile"
-    Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
-    <Message Importance="High"
-      Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
   </Target>
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
@@ -62,6 +58,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
   </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)sources;$(SolutionDir)eigen\eigen-3.4-rc1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -89,12 +90,36 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <QtRcc Include="RRT_VREP_SIMULATOR.qrc"/>
-    <QtUic Include="RRT_VREP_SIMULATOR.ui"/>
-    <QtMoc Include="RRT_VREP_SIMULATOR.h"/>
-    <ClCompile Include="RRT_VREP_SIMULATOR.cpp"/>
-    <ClCompile Include="main.cpp"/>
-
+    <QtUic Include="..\mainwindow.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\config.h" />
+    <ClInclude Include="..\include\constants.h" />
+    <ClInclude Include="..\include\datas.h" />
+    <ClInclude Include="..\include\datatrans.h" />
+    <ClInclude Include="..\include\extApi.h" />
+    <ClInclude Include="..\include\extApiInternal.h" />
+    <ClInclude Include="..\include\extApiPlatform.h" />
+    <ClInclude Include="..\include\object.h" />
+    <ClInclude Include="..\include\obstacles.h" />
+    <ClInclude Include="..\include\robot.h" />
+    <ClInclude Include="..\include\rrt.h" />
+    <ClInclude Include="..\include\simConst.h" />
+    <ClInclude Include="..\include\ui_mainwindow.h" />
+    <QtMoc Include="..\include\renderarea.h" />
+    <QtMoc Include="..\include\mainwindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\sources\datatrans.cpp" />
+    <ClCompile Include="..\sources\extApi.c" />
+    <ClCompile Include="..\sources\extApiPlatform.c" />
+    <ClCompile Include="..\sources\main.cpp" />
+    <ClCompile Include="..\sources\mainwindow.cpp" />
+    <ClCompile Include="..\sources\object.cpp" />
+    <ClCompile Include="..\sources\obstacles.cpp" />
+    <ClCompile Include="..\sources\renderarea.cpp" />
+    <ClCompile Include="..\sources\robot.cpp" />
+    <ClCompile Include="..\sources\rrt.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
