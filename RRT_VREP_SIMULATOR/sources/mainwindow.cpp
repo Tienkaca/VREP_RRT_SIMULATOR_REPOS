@@ -10,6 +10,8 @@ MainWindow::MainWindow(int clientID,QWidget *parent) :
     renderArea = ui->renderArea;
     rrt = renderArea->rrt;
     simulated = false;
+    m_timer = new QTimer(this);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(move_to_goal()));
 }
 
 /**
@@ -66,23 +68,18 @@ void MainWindow::on_startButton_clicked()
         q = q->parent;
     }
     rrt->genShortPath();
-    std::cout<<"guiShortPath Size:	"<<renderArea->rrt->guiShortPath.size()<<"\n";
+    if (rrt->vrepShortPath.size())
+    {
+        m_timer->start(5);
+    }
+
+    /*std::cout<<"guiShortPath Size:	"<<renderArea->rrt->guiShortPath.size()<<"\n";
     std::cout<<"vrepShortPath Size:  "<<renderArea->rrt->vrepShortPath.size()<<"\n";
     int sizeSP = renderArea->rrt->vrepShortPath.size();
     renderArea->update();
     std::cout<<"startpos:\t"<<renderArea->rrt->startPos.x()<<"\t"<<renderArea->rrt->startPos.y()<<std::endl;
-    std::cout<<"endpos:\t"<<renderArea->rrt->endPos.x()<<"\t"<<renderArea->rrt->endPos.y()<<std::endl;
-    for(int i =  0; i< sizeSP;i++)
-    {
-        std::cout<<"guiShortPath:\n";
-        cout<<renderArea->rrt->guiShortPath[i].x<<"\t"<<renderArea->rrt->guiShortPath[i].y<<"\n";
-        std::cout<<"vrepShortPath:\n";
-        cout<<renderArea->rrt->vrepShortPath[sizeSP-i-1].x<<"\t"<<renderArea->rrt->vrepShortPath[sizeSP-i-1].y<<"\n";
-        move_to_goal(renderArea->rrt->vrepShortPath[i].x,renderArea->rrt->vrepShortPath[i].y,Robots);
-        renderArea->update();
-    }
+    std::cout<<"endpos:\t"<<renderArea->rrt->endPos.x()<<"\t"<<renderArea->rrt->endPos.y()<<std::endl;*/
     
-  	//move_to_goal((renderArea->rrt->endPos.x()/400*5-2.5),(renderArea->rrt->endPos.y()/400*5-2.5),Robots);
     
 }
 
@@ -102,7 +99,13 @@ void MainWindow::on_resetButton_clicked()
     rrt->path.resize(0);
     rrt->initialize();
     renderArea->update();
+    m_timer->stop();
     rrt->guiShortPath.clear();
+    rrt->guiShortPath.resize(0);
+    rrt->vrepShortPath.clear();
+    rrt->vrepShortPath.resize(0);
+    Robots.setVel(0, 0);
+    
 }
 
 MainWindow::~MainWindow()
@@ -110,19 +113,19 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::move_to_goal(float xg, float yg, robot Robots) {
+void MainWindow::move_to_goal() {
     float Vmax = 0.1;
     float Wmax = 3.14 / 4;
     float L = 0.1;
     float Kr_V_RL = 0.05;
     float Kr_Prop = 0.02;
     float PI = 3.14;
-
+    int static i = 0;
     datas Data;
     float V, xc, yc, gamma;
-    while (1)
+    if (rrt->vrepShortPath.size())
     {
-
+        float xg = rrt->vrepShortPath[i].x, yg = rrt->vrepShortPath[i].y;
         Data = Robots.getData();
         xc = Data.x;
         yc = Data.y;
@@ -151,12 +154,17 @@ void MainWindow::move_to_goal(float xg, float yg, robot Robots) {
             w = 0;
             Robots.setVel(0, 0);
             cout << "STOP dcmm" << endl;
-            break;
+            i++;
+            if (i == rrt->vrepShortPath.size())
+            {
+                i = 0;
+                m_timer->stop();
+            }
         }
         float V_left = (V - (w * L) / 2) * 48;
         float V_right = (V + (w * L) / 2) * 48;
         Robots.setVel(V_right, V_left);
         renderArea->update();
-        extApi_sleepMs(5);
     }
+       
 }

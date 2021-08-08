@@ -129,18 +129,24 @@ void RenderArea::drawNodes(QPainter &painter)
     painter.setBrush(QBrush(Qt::red));
 
     // if a path exists, draw it.
-    for(int i = 0; i < (int)rrt->path.size() - 1; i++) {
-        QPointF p1(rrt->path[i]->position.x(), rrt->path[i]->position.y());
-        QPointF p2(rrt->path[i+1]->position.x(), rrt->path[i+1]->position.y());
-        painter.drawLine(p1, p2);
+    if (rrt->path.size())
+    {
+        for (int i = 0; i < (int)rrt->path.size() - 1; i++) {
+            QPointF p1(rrt->path[i]->position.x(), rrt->path[i]->position.y());
+            QPointF p2(rrt->path[i + 1]->position.x(), rrt->path[i + 1]->position.y());
+            painter.drawLine(p1, p2);
+        }
     }
     // draw rush path
     painter.restore();
     painter.setPen(Qt::blue);
     painter.setBrush(QBrush(Qt::blue));
-    for(int i = 0; i<(int)rrt->guiShortPath.size()-1;i++)
+    if (rrt->guiShortPath.size())
     {
-        painter.drawLine(QPointF(rrt->guiShortPath[i].x,rrt->guiShortPath[i].y), QPointF(rrt->guiShortPath[i+1].x,rrt->guiShortPath[i+1].y));
+        for (int i = 0; i < (int)rrt->guiShortPath.size() - 1; i++)
+        {
+            painter.drawLine(QPointF(rrt->guiShortPath[i].x, rrt->guiShortPath[i].y), QPointF(rrt->guiShortPath[i + 1].x, rrt->guiShortPath[i + 1].y));
+        }
     }
 }   
 
